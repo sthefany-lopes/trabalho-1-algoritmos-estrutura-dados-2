@@ -279,7 +279,7 @@ int aguardarAcaoPaginacao() {
     return opcao;
 }
 
-void exibirJoias() {
+void exibirJoiasOrdenacaoFisica() {
     FILE *arquivoJoias = fopen(ARQUIVO_JOIAS, "rb");
     if (arquivoJoias == NULL) {
         printf("\nErro ao abrir o arquivo binario de joias.\n");
@@ -289,7 +289,7 @@ void exibirJoias() {
     int contador = 0;
     JOIA joia;
 
-    printf("\nLISTA DE JOIAS\n");
+    printf("\nLISTA DE JOIAS (ORDEM FISICA)\n");
     while (fread(&joia, sizeof(JOIA), 1, arquivoJoias) == 1) {
         printf("\nPosicao: %d\n", contador);
 
@@ -335,7 +335,7 @@ void exibirJoias() {
     fclose(arquivoJoias);
 }
 
-void exibirPedidos() {
+void exibirPedidosOrdenacaoFisica() {
     FILE *arquivoPedidos = fopen(ARQUIVO_PEDIDOS, "rb");
     if (arquivoPedidos == NULL) {
         printf("\nErro ao abrir o arquivo binario de pedidos.\n");
@@ -345,7 +345,7 @@ void exibirPedidos() {
     int contador = 0;
     PEDIDO pedido;
 
-    printf("\nLISTA DE PEDIDOS\n");
+    printf("\nLISTA DE PEDIDOS (ORDEM FISICA)\n");
     while (fread(&pedido, sizeof(PEDIDO), 1, arquivoPedidos) == 1) {
         printf("\nPosicao: %d\n", contador);
         printf("ID do Pedido: %lld\n", pedido.id);
@@ -385,6 +385,174 @@ void exibirPedidos() {
 
     if (contador == 0) {
         printf("\nNenhum pedido foi encontrado.\n");
+    }
+
+    fclose(arquivoPedidos);
+}
+
+void exibirJoiasOrdenacaoLogica() {
+    FILE *arquivoIndicesJoias= fopen(ARQUIVO_INDICES_JOIAS, "rb");
+    if (arquivoIndicesJoias == NULL) {
+        printf("\nNenhuma joia foi encontrada.\n");
+        return;
+    }
+
+    INDICE indice;
+    if (fread(&indice, sizeof(INDICE), 1, arquivoIndicesJoias) != 1) {
+        printf("\nNenhuma joia foi encontrada.\n");
+        fclose(arquivoIndicesJoias);
+        return;
+    }
+
+    int posicaoAtual = indice.posicao_inicial;
+
+    fseek(arquivoIndicesJoias, -sizeof(INDICE), SEEK_END);
+    fread(&indice, sizeof(INDICE), 1, arquivoIndicesJoias);
+    long long idFinal = indice.id_final;
+
+    fclose(arquivoIndicesJoias);
+
+    FILE *arquivoJoias = fopen(ARQUIVO_JOIAS, "rb");
+    if (arquivoJoias == NULL) {
+        printf("\nErro ao abrir o arquivo binario de joias.\n");
+        exit(1);
+    }
+
+    fseek(arquivoJoias, posicaoAtual * sizeof(PEDIDO), SEEK_SET);
+
+    JOIA joia;
+    int contador = 0;
+
+    printf("\nLISTA DE JOIAS (ORDEM LOGICA)\n");
+    while (fread(&joia, sizeof(JOIA), 1, arquivoJoias) == 1) {
+        printf("\nPosicao: %d\n", posicaoAtual);
+        printf("ID: %lld\n", joia.id);
+
+        if (joia.id_categoria != -1) {
+            printf("ID da Categoria: %lld\n", joia.id_categoria);
+        } else {
+            printf("ID da Categoria: Sem ID\n");
+        }
+
+        printf("Alias da Categoria: %s\n", joia.alias_categoria);
+
+        if (joia.id_marca != -1) {
+            printf("ID da Marca: %lld\n", joia.id_marca);
+        } else {
+            printf("ID da Marca: Sem ID\n");
+        }
+
+        printf("Genero: %s\n", joia.genero);
+
+        if (joia.elo >= 0) {
+            printf("Elo: %d\n", joia.elo);
+        } else {
+            printf("Elo: Sem elo\n");
+        }
+
+        printf("Marcada para exclusao: %s\n", joia.fl_exclusao ? "Sim" : "Nao");
+
+        if (joia.id == idFinal) {
+            break;
+        }
+
+        contador++;
+        if (contador % TAM_PAGINA == 0) {
+            if (!aguardarAcaoPaginacao()) {
+                break;
+            }
+        }
+
+        if (joia.elo != -1 && joia.elo != posicaoAtual + 1) {
+            fseek(arquivoJoias, joia.elo * sizeof(JOIA), SEEK_SET);
+            posicaoAtual = joia.elo;
+        } else {
+            posicaoAtual++;
+        }
+    }
+
+    fclose(arquivoJoias);
+}
+
+void exibirPedidosOrdenacaoLogica() {
+    FILE *arquivoIndicesPedidos = fopen(ARQUIVO_INDICES_PEDIDOS, "rb");
+    if (arquivoIndicesPedidos == NULL) {
+        printf("\nNenhum pedido foi encontrado.\n");
+        return;
+    }
+
+    INDICE indice;
+    if (fread(&indice, sizeof(INDICE), 1, arquivoIndicesPedidos) != 1) {
+        printf("\nNenhum pedido foi encontrado.\n");
+        fclose(arquivoIndicesPedidos);
+        return;
+    }
+
+    int posicaoAtual = indice.posicao_inicial;
+
+    fseek(arquivoIndicesPedidos, -sizeof(INDICE), SEEK_END);
+    fread(&indice, sizeof(INDICE), 1, arquivoIndicesPedidos);
+
+    long long idFinal = indice.id_final;
+
+    fclose(arquivoIndicesPedidos);
+
+    FILE *arquivoPedidos = fopen(ARQUIVO_PEDIDOS, "rb");
+    if (arquivoPedidos == NULL) {
+        printf("\nErro ao abrir o arquivo binario de pedidos.\n");
+        exit(1);
+    }
+
+    fseek(arquivoPedidos, posicaoAtual * sizeof(PEDIDO), SEEK_SET);
+
+    PEDIDO pedido;
+    int contador = 0;
+
+    printf("\nLISTA DE PEDIDOS (ORDEM LOGICA)\n");
+    while (fread(&pedido, sizeof(PEDIDO), 1, arquivoPedidos) == 1) {
+        printf("\nPosicao: %d\n", posicaoAtual);
+        printf("ID do Pedido: %lld\n", pedido.id);
+        printf("ID do Produto: %lld\n", pedido.id_produto);
+        printf("Data e Hora: %s\n", pedido.date_time);
+        printf("Quantidade SKU: %d\n", pedido.quantidade_sku);
+
+        if (pedido.preco != -1.0f) {
+            printf("Preco: $ %.2f\n", pedido.preco);
+        } else {
+            printf("Preco: Sem preco\n");
+        }
+
+        if (pedido.id_usuario != -1) {
+            printf("ID do Usuario: %lld\n", pedido.id_usuario);
+        } else {
+            printf("ID do Usuario: Sem ID\n");
+        }
+
+        if (pedido.elo >= 0) {
+            printf("Elo: %d\n", pedido.elo);
+        } else {
+            printf("Elo: Sem elo\n");
+        }
+
+        printf("Marcado para exclusao: %s\n", pedido.fl_exclusao ? "Sim" : "Nao");
+
+        if (pedido.id == idFinal) {
+            break;
+        }
+
+        contador++;
+        if (contador % TAM_PAGINA == 0) {
+            if (!aguardarAcaoPaginacao()) {
+                break;
+            }
+        }
+
+        if (pedido.elo != -1 && pedido.elo != posicaoAtual + 1) {
+            fseek(arquivoPedidos, pedido.elo * sizeof(PEDIDO), SEEK_SET);
+            posicaoAtual = pedido.elo;
+        } else {
+            posicaoAtual++;
+        }
     }
 
     fclose(arquivoPedidos);
@@ -458,10 +626,12 @@ void exibirIndicesPedidos() {
 
 void exibirMenu() {
     printf("MENU\n");
-    printf("1 - Exibir joias\n");
-    printf("2 - Exibir pedidos\n");
-    printf("3 - Exibir indices das joias\n");
-    printf("4 - Exibir indices dos pedidos\n");
+    printf("1 - Exibir joias por ordenacao fisica (desordenado)\n");
+    printf("2 - Exibir pedidos por ordenacao fisica (desordenado)\n");
+    printf("3 - Exibir joias por ordenacao logica (ordenado)\n");
+    printf("4 - Exibir pedidos por ordenacao logica (ordenado)\n");
+    printf("5 - Exibir indices das joias\n");
+    printf("6 - Exibir indices dos pedidos\n");
     printf("0 - Sair\n");
     printf("\nSelecione: ");
 }
@@ -471,15 +641,21 @@ void processarOpcaoMenu(int opcao) {
         case 0:
             break;
         case 1:
-            exibirJoias();
+            exibirJoiasOrdenacaoFisica();
             break;
         case 2:
-            exibirPedidos();
+            exibirPedidosOrdenacaoFisica();
             break;
         case 3:
-            exibirIndicesJoias();
+            exibirJoiasOrdenacaoLogica();
             break;
         case 4:
+            exibirPedidosOrdenacaoLogica();
+            break;
+        case 5:
+            exibirIndicesJoias();
+            break;
+        case 6:
             exibirIndicesPedidos();
             break;
         default:
