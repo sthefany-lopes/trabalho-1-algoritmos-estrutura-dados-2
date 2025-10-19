@@ -8,6 +8,11 @@ int main() {
     if (!arquivosDadosExistem) {
         criarArquivosDados();
         criarArquivosIndices();
+    } else {
+        int arquivosIndicesExistem = verificarExistenciaArquivosIndices();
+        if (!arquivosIndicesExistem) {
+            criarArquivosIndices();
+        }
     }
 
     int opcao;

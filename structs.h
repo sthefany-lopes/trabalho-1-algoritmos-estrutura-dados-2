@@ -22,4 +22,9 @@ typedef struct {
     int fl_exclusao;
 } PEDIDO;
 
+typedef struct {
+    long long id_final;
+    int posicao_inicial;
+} INDICE;
+
 #endif

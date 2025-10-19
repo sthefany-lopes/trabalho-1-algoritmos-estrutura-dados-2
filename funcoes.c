@@ -7,6 +7,93 @@
 #include "structs.h"
 #include "config.h"
 
+void criarArquivosIndices() {
+    FILE *arquivoJoias = fopen(ARQUIVO_JOIAS, "rb");
+    if (arquivoJoias == NULL) {
+        printf("\nErro ao abrir o arquivo binario de joias.\n");
+        exit(1);
+    }
+
+    FILE *arquivoPedidos = fopen(ARQUIVO_PEDIDOS, "rb");
+    if (arquivoPedidos == NULL) {
+        printf("\nErro ao abrir o arquivo binario de pedidos.\n");
+        exit(1);
+    }
+
+    FILE *arquivoIndicesJoias = fopen(ARQUIVO_INDICES_JOIAS, "wb");
+    if (arquivoIndicesJoias == NULL) {
+        printf("\nErro ao abrir o arquivo binario de indices de joias.\n");
+        exit(1);
+    }
+
+    FILE *arquivoIndicesPedidos = fopen(ARQUIVO_INDICES_PEDIDOS, "wb");
+    if (arquivoIndicesPedidos == NULL) {
+        printf("\nErro ao abrir o arquivo binario de indices de pedidos.\n");
+        exit(1);
+    }
+
+    JOIA joia;
+    PEDIDO pedido;
+    INDICE indice;
+
+    int contador = 0;
+    while (1) {
+        long long id_final = -1;
+        int posicao_inicial = contador;
+
+        for (int i = 0; i < TAMANHO_BLOCO_INDICE; i++) {
+            if (fread(&joia, sizeof(JOIA), 1, arquivoJoias) != 1) {
+                break;
+            }
+            id_final = joia.id;
+            contador++;
+        }
+
+        if (id_final == -1) {
+            break;
+        }
+
+        indice.id_final = id_final;
+        indice.posicao_inicial = posicao_inicial;
+        fwrite(&indice, sizeof(INDICE), 1, arquivoIndicesJoias);
+
+        if (feof(arquivoJoias)) {
+             break;
+        }
+    }
+
+    contador = 0;
+    while (1) {
+        long long id_final = -1;
+        int posicao_inicial = contador;
+
+        for (int i = 0; i < TAMANHO_BLOCO_INDICE; i++) {
+            if (fread(&pedido, sizeof(PEDIDO), 1, arquivoPedidos) != 1) {
+                break;
+            }
+            id_final = pedido.id;
+            contador++;
+        }
+
+        if (id_final == -1) {
+            break;
+        }
+
+        indice.id_final = id_final;
+        indice.posicao_inicial = posicao_inicial;
+        fwrite(&indice, sizeof(INDICE), 1, arquivoIndicesPedidos);
+
+        if (feof(arquivoPedidos)) {
+             break;
+        }
+    }
+
+    fclose(arquivoJoias);
+    fclose(arquivoPedidos);
+    fclose(arquivoIndicesJoias);
+    fclose(arquivoIndicesPedidos);
+}
+
 int verificarExistenciaArquivosDados() {
     FILE *arquivoJoias = fopen(ARQUIVO_JOIAS, "rb");
     if (arquivoJoias == NULL) {
@@ -19,6 +106,22 @@ int verificarExistenciaArquivosDados() {
         return 0;
     }
     fclose(arquivoPedidos);
+
+    return 1;
+}
+
+int verificarExistenciaArquivosIndices() {
+    FILE *arquivoIndicesJoias = fopen(ARQUIVO_INDICES_JOIAS, "rb");
+    if (arquivoIndicesJoias == NULL) {
+        return 0;
+    }
+    fclose(arquivoIndicesJoias);
+
+    FILE *arquivoIndicesPedidos = fopen(ARQUIVO_INDICES_PEDIDOS, "rb");
+    if (arquivoIndicesPedidos == NULL) {
+        return 0;
+    }
+    fclose(arquivoIndicesPedidos);
 
     return 1;
 }
@@ -160,6 +263,7 @@ void criarArquivosDados() {
 
     fclose(arquivoEntrada);
 
+    // Ordenação dos vetores dinâmicos.
     qsort(vetorPedidos, quantidadePedidos, sizeof(PEDIDO), compararPedidos);
     qsort(vetorJoias, quantidadeJoias, sizeof(JOIA), compararJoias);
 
@@ -177,19 +281,19 @@ int aguardarAcaoPaginacao() {
 
 void exibirJoias() {
     FILE *arquivoJoias = fopen(ARQUIVO_JOIAS, "rb");
-
     if (arquivoJoias == NULL) {
         printf("\nErro ao abrir o arquivo binario de joias.\n");
         exit(1);
     }
 
     int contador = 0;
-
     JOIA joia;
 
     printf("\nLISTA DE JOIAS\n");
     while (fread(&joia, sizeof(JOIA), 1, arquivoJoias) == 1) {
-        printf("\nID: %lld\n", joia.id);
+        printf("\nPosicao: %d\n", contador);
+
+        printf("ID: %lld\n", joia.id);
 
         if (joia.id_categoria != -1) {
             printf("ID da Categoria: %lld\n", joia.id_categoria);
@@ -233,19 +337,18 @@ void exibirJoias() {
 
 void exibirPedidos() {
     FILE *arquivoPedidos = fopen(ARQUIVO_PEDIDOS, "rb");
-
     if (arquivoPedidos == NULL) {
         printf("\nErro ao abrir o arquivo binario de pedidos.\n");
         exit(1);
     }
 
     int contador = 0;
-
     PEDIDO pedido;
 
     printf("\nLISTA DE PEDIDOS\n");
     while (fread(&pedido, sizeof(PEDIDO), 1, arquivoPedidos) == 1) {
-        printf("\nID do Pedido: %lld\n", pedido.id);
+        printf("\nPosicao: %d\n", contador);
+        printf("ID do Pedido: %lld\n", pedido.id);
         printf("ID do Produto: %lld\n", pedido.id_produto);
         printf("Data e Hora: %s\n", pedido.date_time);
         printf("Quantidade SKU: %d\n", pedido.quantidade_sku);
@@ -271,7 +374,6 @@ void exibirPedidos() {
         printf("Marcado para exclusao: %s\n", pedido.fl_exclusao ? "Sim" : "Nao");
 
         contador++;
-
         if (contador % TAM_PAGINA == 0) {
             int continuar = aguardarAcaoPaginacao();
 
@@ -288,16 +390,86 @@ void exibirPedidos() {
     fclose(arquivoPedidos);
 }
 
+void exibirIndicesJoias() {
+    FILE *arquivoIndicesJoias = fopen(ARQUIVO_INDICES_JOIAS, "rb");
+    if (arquivoIndicesJoias == NULL) {
+        printf("\nErro ao abrir o arquivo binario de indices de joias.\n");
+        exit(1);
+    }
+
+    int contador = 0;
+    INDICE indice;
+
+    printf("\nLISTA DE INDICES DAS JOIAS\n");
+    while (fread(&indice, sizeof(INDICE), 1, arquivoIndicesJoias) == 1) {
+        printf("\nPosicao: %d\n", contador);
+        printf("ID da Ultima Joia: %lld\n", indice.id_final);
+        printf("Posicao da Primeira Joia: %d\n", indice.posicao_inicial);
+
+        contador++;
+        if (contador % TAM_PAGINA == 0) {
+            int continuar = aguardarAcaoPaginacao();
+
+            if (!continuar) {
+                break;
+            }
+        }
+    }
+
+    if (contador == 0) {
+        printf("\nNenhum indice de joia foi encontrado.\n");
+    }
+
+    fclose(arquivoIndicesJoias);
+}
+
+void exibirIndicesPedidos() {
+    FILE *arquivoIndicesPedidos = fopen(ARQUIVO_INDICES_PEDIDOS, "rb");
+    if (arquivoIndicesPedidos == NULL) {
+        printf("\nErro ao abrir o arquivo binario de indices de pedidos.\n");
+        exit(1);
+    }
+
+    int contador = 0;
+    INDICE indice;
+
+    printf("\nLISTA DE INDICES DE PEDIDOS\n");
+    while (fread(&indice, sizeof(INDICE), 1, arquivoIndicesPedidos) == 1) {
+        printf("\nPosicao: %d\n", contador);
+        printf("ID do Ultimo Pedido: %lld\n", indice.id_final);
+        printf("Posicao do Primeiro Pedido: %d\n", indice.posicao_inicial);
+
+        contador++;
+        if (contador % TAM_PAGINA == 0) {
+            int continuar = aguardarAcaoPaginacao();
+
+            if (!continuar) {
+                break;
+            }
+        }
+    }
+
+    if (contador == 0) {
+        printf("\nNenhum indice de pedido foi encontrado.\n");
+    }
+
+    fclose(arquivoIndicesPedidos);
+}
+
 void exibirMenu() {
     printf("MENU\n");
     printf("1 - Exibir joias\n");
     printf("2 - Exibir pedidos\n");
+    printf("3 - Exibir indices das joias\n");
+    printf("4 - Exibir indices dos pedidos\n");
     printf("0 - Sair\n");
     printf("\nSelecione: ");
 }
 
 void processarOpcaoMenu(int opcao) {
     switch (opcao) {
+        case 0:
+            break;
         case 1:
             exibirJoias();
             break;
@@ -305,6 +477,13 @@ void processarOpcaoMenu(int opcao) {
             exibirPedidos();
             break;
         case 3:
+            exibirIndicesJoias();
+            break;
+        case 4:
+            exibirIndicesPedidos();
+            break;
+        default:
+            printf("\nOpcao invalida.\n");
             break;
     }
 }

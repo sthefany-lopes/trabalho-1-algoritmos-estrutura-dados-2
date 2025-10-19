@@ -3,7 +3,11 @@
 
 int verificarExistenciaArquivosDados();
 
+int verificarExistenciaArquivosIndices();
+
 void criarArquivosDados();
+
+void criarArquivosIndices();
 
 void exibirMenu();
 

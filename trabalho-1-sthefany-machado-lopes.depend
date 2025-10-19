@@ -1,12 +1,12 @@
 # depslib dependency file v1.0
-1760812835 source:d:\projeto-trabalho-1\trabalho-1-sthefany-machado-lopes\main.c
+1760883996 source:d:\projeto-trabalho-1\trabalho-1-sthefany-machado-lopes\main.c
 	<stdio.h>
 	<stdlib.h>
 	"funcoes.h"
 
-1760661368 d:\projeto-trabalho-1\trabalho-1-sthefany-machado-lopes\funcoes.h
+1760884004 d:\projeto-trabalho-1\trabalho-1-sthefany-machado-lopes\funcoes.h
 
-1760828387 source:d:\projeto-trabalho-1\trabalho-1-sthefany-machado-lopes\funcoes.c
+1760884088 source:d:\projeto-trabalho-1\trabalho-1-sthefany-machado-lopes\funcoes.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
@@ -15,9 +15,9 @@
 	"structs.h"
 	"config.h"
 
-1760564719 d:\projeto-trabalho-1\trabalho-1-sthefany-machado-lopes\structs.h
+1760843082 d:\projeto-trabalho-1\trabalho-1-sthefany-machado-lopes\structs.h
 
-1760839169 d:\projeto-trabalho-1\trabalho-1-sthefany-machado-lopes\config.h
+1760883765 d:\projeto-trabalho-1\trabalho-1-sthefany-machado-lopes\config.h
 
 1760828372 source:d:\projeto-trabalho-1\trabalho-1-sthefany-machado-lopes\funcoes_utilitarias.c
 	<stdio.h>
