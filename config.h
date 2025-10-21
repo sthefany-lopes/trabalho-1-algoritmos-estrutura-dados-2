@@ -14,7 +14,7 @@
 #define ARQUIVO_AUXILIAR_JOIAS "dados/joias_auxiliar.bin"
 #define ARQUIVO_AUXILIAR_PEDIDOS "dados/pedidos_auxiliar.bin"
 
-#define TAMANHO_BLOCO_INDICE 1000
+#define TAMANHO_BLOCO_INDICE 4
 
 // Configurações para alocações de memória:
 #define CAPACIDADE_INICIAL_VETOR 10000
