@@ -15,13 +15,7 @@ int main() {
         }
     }
 
-    int opcao;
-    do {
-        exibirMenu();
-        scanf("%d", &opcao);
-        processarOpcaoMenu(opcao);
-        printf("\n");
-    } while (opcao != 0);
+    gerenciarMenu();
 
     return 0;
 }

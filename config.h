@@ -11,6 +11,9 @@
 #define ARQUIVO_INDICES_JOIAS "dados/indices_joias.bin"
 #define ARQUIVO_INDICES_PEDIDOS "dados/indices_pedidos.bin"
 
+#define ARQUIVO_AUXILIAR_JOIAS "dados/joias_auxiliar.bin"
+#define ARQUIVO_AUXILIAR_PEDIDOS "dados/pedidos_auxiliar.bin"
+
 #define TAMANHO_BLOCO_INDICE 1000
 
 // Configurações para alocações de memória:
@@ -18,5 +21,8 @@
 
 // Configurações de paginação:
 #define TAM_PAGINA 50
+
+// Configurações de reorganização:
+#define MAX_MODIFICACOES 100
 
 #endif

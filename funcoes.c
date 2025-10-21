@@ -7,6 +7,9 @@
 #include "structs.h"
 #include "config.h"
 
+int totalInsercoes = 0;
+int totalExclusoes = 0;
+
 void criarArquivosIndices() {
     FILE *arquivoJoias = fopen(ARQUIVO_JOIAS, "rb");
     if (arquivoJoias == NULL) {
@@ -167,7 +170,7 @@ void criarArquivosDados() {
         exit(1);
     }
 
-    // Vetores dinâmicos.
+    // Vetores dinamicos.
     PEDIDO *vetorPedidos = malloc(CAPACIDADE_INICIAL_VETOR * sizeof(PEDIDO));
     JOIA *vetorJoias = malloc(CAPACIDADE_INICIAL_VETOR * sizeof(JOIA));
 
@@ -245,7 +248,7 @@ void criarArquivosDados() {
         joia.elo = -1;
         joia.fl_exclusao = 0;
 
-        // Realocação (se necessário).
+        // Realocacao (se necessario).
         if (quantidadePedidos >= capacidade) {
             capacidade *= 2;
             vetorPedidos = realloc(vetorPedidos, capacidade * sizeof(PEDIDO));
@@ -263,7 +266,7 @@ void criarArquivosDados() {
 
     fclose(arquivoEntrada);
 
-    // Ordenação dos vetores dinâmicos.
+    // Ordenacao dos vetores dinamicos.
     qsort(vetorPedidos, quantidadePedidos, sizeof(PEDIDO), compararPedidos);
     qsort(vetorJoias, quantidadeJoias, sizeof(JOIA), compararJoias);
 
@@ -418,7 +421,7 @@ void exibirJoiasOrdenacaoLogica() {
         exit(1);
     }
 
-    fseek(arquivoJoias, posicaoAtual * sizeof(PEDIDO), SEEK_SET);
+    fseek(arquivoJoias, posicaoAtual * sizeof(JOIA), SEEK_SET);
 
     JOIA joia;
     int contador = 0;
@@ -624,6 +627,563 @@ void exibirIndicesPedidos() {
     fclose(arquivoIndicesPedidos);
 }
 
+int buscarIndicePorId(FILE *arquivoIndices, long long idBusca) {
+    INDICE indice;
+    long long inicio = 0;
+
+    fseek(arquivoIndices, 0, SEEK_END);
+
+    long long tamanho = ftell(arquivoIndices);
+    long long totalIndices = tamanho / sizeof(INDICE);
+    long long fim = totalIndices - 1;
+
+    int blocoEncontrado = -1;
+
+    while (inicio <= fim) {
+        long long meio = (inicio + fim) / 2;
+        fseek(arquivoIndices, meio * sizeof(INDICE), SEEK_SET);
+        fread(&indice, sizeof(INDICE), 1, arquivoIndices);
+
+        if (idBusca <= indice.id_final) {
+            blocoEncontrado = meio;
+            fim = meio - 1;
+        } else {
+            inicio = meio + 1;
+        }
+    }
+
+    return blocoEncontrado;
+}
+
+void buscarJoia() {
+    FILE *arquivoIndicesJoias = fopen(ARQUIVO_INDICES_JOIAS, "rb");
+    if (arquivoIndicesJoias == NULL) {
+        printf("\nErro ao abrir o arquivo binario de indices de joias.\n");
+        exit(1);
+    }
+
+    FILE *arquivoJoias = fopen(ARQUIVO_JOIAS, "rb");
+    if (arquivoJoias == NULL) {
+        printf("\nErro ao abrir o arquivo binario de joias.\n");
+        exit(1);
+    }
+
+    printf("\nBUSCA POR JOIA\n");
+
+    long long idBusca;
+    printf("Informe o ID da joia: ");
+    scanf("%lld", &idBusca);
+
+    int bloco = buscarIndicePorId(arquivoIndicesJoias, idBusca);
+    if (bloco == -1) {
+        printf("\nJoia nao encontrada.\n");
+        fclose(arquivoIndicesJoias);
+        fclose(arquivoJoias);
+        return;
+    }
+
+    INDICE indice;
+    fseek(arquivoIndicesJoias, bloco * sizeof(INDICE), SEEK_SET);
+    fread(&indice, sizeof(INDICE), 1, arquivoIndicesJoias);
+
+    JOIA joia;
+    fseek(arquivoJoias, indice.posicao_inicial * sizeof(JOIA), SEEK_SET);
+
+    while (fread(&joia, sizeof(JOIA), 1, arquivoJoias) == 1) {
+        if (joia.id > indice.id_final) {
+            break;
+        }
+
+        if (joia.id == idBusca) {
+            printf("\n\nID: %lld\n", joia.id);
+            if (joia.id_categoria != -1) {
+                printf("ID da Categoria: %lld\n", joia.id_categoria);
+            } else {
+                printf("ID da Categoria: Sem ID\n");
+            }
+
+            printf("Alias da Categoria: %s\n", joia.alias_categoria);
+
+            if (joia.id_marca != -1) {
+                printf("ID da Marca: %lld\n", joia.id_marca);
+            } else {
+                printf("ID da Marca: Sem ID\n");
+            }
+
+            printf("Genero: %s\n", joia.genero);
+
+            if (joia.elo >= 0) {
+                printf("Elo: %d\n", joia.elo);
+            } else {
+                printf("Elo: Sem elo\n");
+            }
+
+            printf("Marcada para exclusao: %s\n", joia.fl_exclusao ? "Sim" : "Nao");
+
+            fclose(arquivoIndicesJoias);
+            fclose(arquivoJoias);
+            return;
+        }
+
+        if (joia.elo != -1) {
+            fseek(arquivoJoias, joia.elo * sizeof(JOIA), SEEK_SET);
+        }
+    }
+
+    printf("\nJoia nao encontrada.\n");
+    fclose(arquivoIndicesJoias);
+    fclose(arquivoJoias);
+}
+
+void buscarPedido() {
+    FILE *arquivoIndicesPedidos = fopen(ARQUIVO_INDICES_PEDIDOS, "rb");
+    if (arquivoIndicesPedidos == NULL) {
+        printf("\nErro ao abrir o arquivo binario de indices de pedidos.\n");
+        exit(1);
+    }
+
+    FILE *arquivoPedidos = fopen(ARQUIVO_PEDIDOS, "rb");
+    if (arquivoPedidos == NULL) {
+        printf("\nErro ao abrir o arquivo binario de pedidos.\n");
+        exit(1);
+    }
+
+    printf("\nBUSCA POR PEDIDO\n");
+
+    long long idBusca;
+    printf("Informe o ID do pedido: ");
+    scanf("%lld", &idBusca);
+
+    int bloco = buscarIndicePorId(arquivoIndicesPedidos, idBusca);
+    if (bloco == -1) {
+        printf("\nPedido nao encontrado.\n");
+        fclose(arquivoIndicesPedidos);
+        fclose(arquivoPedidos);
+        return;
+    }
+
+    INDICE indice;
+    fseek(arquivoIndicesPedidos, bloco * sizeof(INDICE), SEEK_SET);
+    fread(&indice, sizeof(INDICE), 1, arquivoIndicesPedidos);
+
+    PEDIDO pedido;
+    fseek(arquivoPedidos, indice.posicao_inicial * sizeof(PEDIDO), SEEK_SET);
+
+    while (fread(&pedido, sizeof(PEDIDO), 1, arquivoPedidos) == 1) {
+        if (pedido.id > indice.id_final) {
+            break;
+        }
+
+        if (pedido.id == idBusca) {
+            printf("\n\nID do Pedido: %lld\n", pedido.id);
+            printf("ID do Produto: %lld\n", pedido.id_produto);
+            printf("Data e Hora: %s\n", pedido.date_time);
+            printf("Quantidade SKU: %d\n", pedido.quantidade_sku);
+
+            if (pedido.preco != -1.0f) {
+                printf("Preco: $ %.2f\n", pedido.preco);
+            } else {
+                printf("Preco: Sem preco\n");
+            }
+
+            if (pedido.id_usuario != -1) {
+                printf("ID do Usuario: %lld\n", pedido.id_usuario);
+            } else {
+                printf("ID do Usuario: Sem ID\n");
+            }
+
+            if (pedido.elo >= 0) {
+                printf("Elo: %d\n", pedido.elo);
+            } else {
+                printf("Elo: Sem elo\n");
+            }
+
+            printf("Marcado para exclusao: %s\n", pedido.fl_exclusao ? "Sim" : "Nao");
+
+            fclose(arquivoIndicesPedidos);
+            fclose(arquivoPedidos);
+            return;
+        }
+
+        if (pedido.elo != -1) {
+            fseek(arquivoPedidos, pedido.elo * sizeof(PEDIDO), SEEK_SET);
+        }
+    }
+
+    printf("\nPedido nao encontrado.\n");
+    fclose(arquivoIndicesPedidos);
+    fclose(arquivoPedidos);
+}
+
+JOIA criarJoia() {
+    JOIA joia;
+
+    printf("Insira o ID da Joia: ");
+    scanf("%lld", &joia.id);
+
+    printf("Insira o ID da Categoria: ");
+    scanf("%lld", &joia.id_categoria);
+
+    getchar();
+    printf("Insira o Alias da Categoria: ");
+    gets(joia.alias_categoria);
+
+    printf("Insira o ID da Marca: ");
+    scanf("%lld", &joia.id_marca);
+
+    getchar();
+    printf("Insira o Genero: ");
+    gets(joia.genero);
+
+    joia.elo = -1;
+    joia.fl_exclusao = 0;
+
+    return joia;
+}
+
+PEDIDO criarPedido() {
+    PEDIDO pedido;
+
+    printf("Insira o ID do Pedido: ");
+    scanf("%lld", &pedido.id);
+
+    printf("Insira o ID do Produto: ");
+    scanf("%lld", &pedido.id_produto);
+
+    getchar();
+    printf("Insira a Data e Hora: ");
+    gets(pedido.date_time);
+
+    printf("Insira a Quantidade SKU: ");
+    scanf("%d", &pedido.quantidade_sku);
+
+    printf("Insira o Preco: ");
+    scanf("%f", &pedido.preco);
+
+    printf("Insira o ID do Usuario: ");
+    scanf("%lld", &pedido.id_usuario);
+
+    pedido.elo = -1;
+    pedido.fl_exclusao = 0;
+
+    return pedido;
+}
+
+void inserirJoia() {
+    printf("\nINSERIR JOIA\n");
+
+    JOIA joia = criarJoia();
+
+    FILE *arquivoIndicesJoias = fopen(ARQUIVO_INDICES_JOIAS, "rb+");
+    if (arquivoIndicesJoias == NULL) {
+        printf("\nErro ao abrir o arquivo binario de indices de joias.\n");
+        exit(1);
+    }
+
+    FILE *arquivoJoias = fopen(ARQUIVO_JOIAS, "rb+");
+    if (arquivoJoias == NULL) {
+        printf("\nErro ao abrir o arquivo binario de joias.\n");
+        exit(1);
+    }
+
+    int bloco = buscarIndicePorId(arquivoIndicesJoias, joia.id);
+    if (bloco == -1) {
+        // A nova joia sera a ultima do arquivo.
+    }
+}
+
+void inserirPedido() {
+    printf("\nINSERIR PEDIDO\n");
+
+    PEDIDO pedido = criarPedido();
+
+    FILE *arquivoIndicesPedidos = fopen(ARQUIVO_INDICES_PEDIDOS, "rb+");
+    if (arquivoIndicesPedidos == NULL) {
+        printf("\nErro ao abrir o arquivo binario de indices de pedidos.\n");
+        exit(1);
+    }
+
+    FILE *arquivoPedidos = fopen(ARQUIVO_PEDIDOS, "rb+");
+    if (arquivoPedidos == NULL) {
+        printf("\nErro ao abrir o arquivo binario de pedidos.\n");
+        exit(1);
+    }
+
+    int bloco = buscarIndicePorId(arquivoIndicesPedidos, pedido.id);
+    if (bloco == -1) {
+        // O novo pedido sera o ultimo do arquivo.
+    }
+
+    fclose(arquivoIndicesPedidos);
+    fclose(arquivoPedidos);
+}
+
+void excluirJoia() {
+    FILE *arquivoIndicesJoias = fopen(ARQUIVO_INDICES_JOIAS, "rb");
+    if (arquivoIndicesJoias == NULL) {
+        printf("\nErro ao abrir o arquivo binario de indices de joias.\n");
+        exit(1);
+    }
+
+    FILE *arquivoJoias = fopen(ARQUIVO_JOIAS, "rb+");
+    if (arquivoJoias == NULL) {
+        printf("\nErro ao abrir o arquivo binario de joias.\n");
+        exit(1);
+    }
+
+    printf("\nEXCLUIR JOIA\n");
+
+    long long idBusca;
+    printf("Informe o ID da joia: ");
+    scanf("%lld", &idBusca);
+
+    int bloco = buscarIndicePorId(arquivoIndicesJoias, idBusca);
+    if (bloco == -1) {
+        printf("\nJoia nao encontrada.\n");
+        fclose(arquivoIndicesJoias);
+        fclose(arquivoJoias);
+        return;
+    }
+
+    INDICE indice;
+    fseek(arquivoIndicesJoias, bloco * sizeof(INDICE), SEEK_SET);
+    fread(&indice, sizeof(INDICE), 1, arquivoIndicesJoias);
+
+    JOIA joia;
+    fseek(arquivoJoias, indice.posicao_inicial * sizeof(JOIA), SEEK_SET);
+
+    while (fread(&joia, sizeof(JOIA), 1, arquivoJoias) == 1) {
+        if (joia.id > indice.id_final) {
+            break;
+        }
+
+        if (joia.id == idBusca) {
+            joia.fl_exclusao = 1;
+            fseek(arquivoJoias, -1 * sizeof(JOIA), SEEK_CUR);
+            fwrite(&joia, sizeof(JOIA), 1, arquivoJoias);
+
+            totalExclusoes++;
+
+            fclose(arquivoIndicesJoias);
+            fclose(arquivoJoias);
+            return;
+        }
+
+        if (joia.elo != -1) {
+            fseek(arquivoJoias, joia.elo * sizeof(JOIA), SEEK_SET);
+        }
+    }
+
+    printf("\nJoia nao encontrada.\n");
+    fclose(arquivoIndicesJoias);
+    fclose(arquivoJoias);
+}
+
+void excluirPedido() {
+    FILE *arquivoIndicesPedidos = fopen(ARQUIVO_INDICES_PEDIDOS, "rb");
+    if (arquivoIndicesPedidos == NULL) {
+        printf("\nErro ao abrir o arquivo binario de indices de pedidos.\n");
+        exit(1);
+    }
+
+    FILE *arquivoPedidos = fopen(ARQUIVO_PEDIDOS, "rb+");
+    if (arquivoPedidos == NULL) {
+        printf("\nErro ao abrir o arquivo binario de pedidos.\n");
+        exit(1);
+    }
+
+    printf("\nEXCLUIR PEDIDO\n");
+
+    long long idBusca;
+    printf("Informe o ID do pedido: ");
+    scanf("%lld", &idBusca);
+
+    int bloco = buscarIndicePorId(arquivoIndicesPedidos, idBusca);
+    if (bloco == -1) {
+        printf("\nPedido nao encontrado.\n");
+        fclose(arquivoIndicesPedidos);
+        fclose(arquivoPedidos);
+        return;
+    }
+
+    INDICE indice;
+    fseek(arquivoIndicesPedidos, bloco * sizeof(INDICE), SEEK_SET);
+    fread(&indice, sizeof(INDICE), 1, arquivoIndicesPedidos);
+
+    PEDIDO pedido;
+    fseek(arquivoPedidos, indice.posicao_inicial * sizeof(PEDIDO), SEEK_SET);
+
+    while (fread(&pedido, sizeof(PEDIDO), 1, arquivoPedidos) == 1) {
+        if (pedido.id > indice.id_final) {
+            break;
+        }
+
+        if (pedido.id == idBusca) {
+            pedido.fl_exclusao = 1;
+            fseek(arquivoPedidos, -1 * sizeof(PEDIDO), SEEK_CUR);
+            fwrite(&pedido, sizeof(PEDIDO), 1, arquivoPedidos);
+
+            totalExclusoes++;
+
+            fclose(arquivoIndicesPedidos);
+            fclose(arquivoPedidos);
+            return;
+        }
+
+        if (pedido.elo != -1) {
+            fseek(arquivoPedidos, pedido.elo * sizeof(PEDIDO), SEEK_SET);
+        }
+    }
+
+    printf("\nPedido nao encontrado.\n");
+    fclose(arquivoIndicesPedidos);
+    fclose(arquivoPedidos);
+}
+
+void reorganizarArquivoDadosJoias() {
+    FILE *arquivoIndicesJoias= fopen(ARQUIVO_INDICES_JOIAS, "rb");
+    if (arquivoIndicesJoias == NULL) {
+        printf("\nErro ao abrir o arquivo binario de indices de joias.\n");
+        exit(1);
+    }
+
+    INDICE indice;
+    if (fread(&indice, sizeof(INDICE), 1, arquivoIndicesJoias) != 1) {
+        fclose(arquivoIndicesJoias);
+        return;
+    }
+
+    int posicaoAtual = indice.posicao_inicial;
+
+    fseek(arquivoIndicesJoias, -sizeof(INDICE), SEEK_END);
+    fread(&indice, sizeof(INDICE), 1, arquivoIndicesJoias);
+    long long idFinal = indice.id_final;
+
+    fclose(arquivoIndicesJoias);
+
+    FILE *arquivoJoias = fopen(ARQUIVO_JOIAS, "rb");
+    if (arquivoJoias == NULL) {
+        printf("\nErro ao abrir o arquivo binario de joias.\n");
+        exit(1);
+    }
+    fseek(arquivoJoias, posicaoAtual * sizeof(JOIA), SEEK_SET);
+
+    FILE *arquivoJoiasAuxiliar = fopen(ARQUIVO_AUXILIAR_JOIAS, "wb");
+    if (arquivoJoiasAuxiliar == NULL) {
+        printf("\nErro ao abrir o arquivo auxiliar binario de joias.\n");
+        exit(1);
+    }
+
+    JOIA joia;
+    while (fread(&joia, sizeof(JOIA), 1, arquivoJoias) == 1) {
+        if (joia.elo != -1 && joia.elo != posicaoAtual + 1) {
+            fseek(arquivoJoias, joia.elo * sizeof(JOIA), SEEK_SET);
+            posicaoAtual = joia.elo;
+        } else {
+            posicaoAtual++;
+        }
+
+        if (joia.fl_exclusao != 1) {
+            joia.elo = -1;
+            fwrite(&joia, sizeof(JOIA), 1, arquivoJoiasAuxiliar);
+        }
+
+        if (joia.id == idFinal) {
+            break;
+        }
+    }
+
+    fclose(arquivoJoias);
+    fclose(arquivoJoiasAuxiliar);
+
+    if (remove(ARQUIVO_JOIAS) != 0) {
+        printf("\nErro ao excluir o arquivo original de joias.\n");
+        exit(1);
+    }
+
+    if (rename(ARQUIVO_AUXILIAR_JOIAS, ARQUIVO_JOIAS) != 0) {
+        printf("\nErro ao renomear o arquivo auxiliar de joias.\n");
+        exit(1);
+    }
+}
+
+void reorganizarArquivoDadosPedidos() {
+    FILE *arquivoIndicesPedidos= fopen(ARQUIVO_INDICES_PEDIDOS, "rb");
+    if (arquivoIndicesPedidos == NULL) {
+        printf("\nErro ao abrir o arquivo binario de indices de pedidos.\n");
+        exit(1);
+    }
+
+    INDICE indice;
+    if (fread(&indice, sizeof(INDICE), 1, arquivoIndicesPedidos) != 1) {
+        fclose(arquivoIndicesPedidos);
+        return;
+    }
+
+    int posicaoAtual = indice.posicao_inicial;
+
+    fseek(arquivoIndicesPedidos, -sizeof(INDICE), SEEK_END);
+    fread(&indice, sizeof(INDICE), 1, arquivoIndicesPedidos);
+    long long idFinal = indice.id_final;
+
+    fclose(arquivoIndicesPedidos);
+
+    FILE *arquivoPedidos = fopen(ARQUIVO_PEDIDOS, "rb");
+    if (arquivoPedidos == NULL) {
+        printf("\nErro ao abrir o arquivo binario de pedidos.\n");
+        exit(1);
+    }
+    fseek(arquivoPedidos, posicaoAtual * sizeof(PEDIDO), SEEK_SET);
+
+    FILE *arquivoPedidosAuxiliar = fopen(ARQUIVO_AUXILIAR_PEDIDOS, "wb");
+    if (arquivoPedidosAuxiliar == NULL) {
+        printf("\nErro ao abrir o arquivo auxiliar binario de pedidos.\n");
+        exit(1);
+    }
+
+    PEDIDO pedido;
+    while (fread(&pedido, sizeof(PEDIDO), 1, arquivoPedidos) == 1) {
+        if (pedido.elo != -1 && pedido.elo != posicaoAtual + 1) {
+            fseek(arquivoPedidos, pedido.elo * sizeof(PEDIDO), SEEK_SET);
+            posicaoAtual = pedido.elo;
+        } else {
+            posicaoAtual++;
+        }
+
+        if (pedido.fl_exclusao != 1) {
+            pedido.elo = -1;
+            fwrite(&pedido, sizeof(PEDIDO), 1, arquivoPedidosAuxiliar);
+        }
+
+        if (pedido.id == idFinal) {
+            break;
+        }
+    }
+
+    fclose(arquivoPedidos);
+    fclose(arquivoPedidosAuxiliar);
+
+    if (remove(ARQUIVO_PEDIDOS) != 0) {
+        printf("\nErro ao excluir o arquivo original de pedidos.\n");
+        exit(1);
+    }
+
+    if (rename(ARQUIVO_AUXILIAR_PEDIDOS, ARQUIVO_PEDIDOS) != 0) {
+        printf("\nErro ao renomear o arquivo auxiliar de pedidos.\n");
+        exit(1);
+    }
+}
+
+void reorganizarArquivos() {
+    printf("\nINICIANDO A REORGANIZACAO DOS ARQUIVOS DE DADOS E INDICES...\n");
+
+    reorganizarArquivoDadosJoias();
+    reorganizarArquivoDadosPedidos();
+    criarArquivosIndices();
+
+    printf("Todos os arquivos foram reorganizados com sucesso.\n\n");
+}
+
 void exibirMenu() {
     printf("MENU\n");
     printf("1 - Exibir joias por ordenacao fisica (desordenado)\n");
@@ -632,6 +1192,12 @@ void exibirMenu() {
     printf("4 - Exibir pedidos por ordenacao logica (ordenado)\n");
     printf("5 - Exibir indices das joias\n");
     printf("6 - Exibir indices dos pedidos\n");
+    printf("7 - Buscar joia\n");
+    printf("8 - Buscar pedido\n");
+    printf("9 - Inserir joia\n");
+    printf("10 - Inserir pedido\n");
+    printf("11 - Excluir joia\n");
+    printf("12 - Excluir pedido\n");
     printf("0 - Sair\n");
     printf("\nSelecione: ");
 }
@@ -658,8 +1224,43 @@ void processarOpcaoMenu(int opcao) {
         case 6:
             exibirIndicesPedidos();
             break;
+        case 7:
+            buscarJoia();
+            break;
+        case 8:
+            buscarPedido();
+            break;
+        case 9:
+            inserirJoia();
+            break;
+        case 10:
+            inserirPedido();
+            break;
+        case 11:
+            excluirJoia();
+            break;
+        case 12:
+            excluirPedido();
+            break;
         default:
             printf("\nOpcao invalida.\n");
             break;
     }
+}
+
+void gerenciarMenu() {
+    int opcao;
+    do {
+        exibirMenu();
+        scanf("%d", &opcao);
+        processarOpcaoMenu(opcao);
+        printf("\n");
+
+        if (totalInsercoes + totalExclusoes >= MAX_MODIFICACOES) {
+            totalInsercoes = 0;
+            totalExclusoes = 0;
+
+            reorganizarArquivos();
+        }
+    } while (opcao != 0);
 }

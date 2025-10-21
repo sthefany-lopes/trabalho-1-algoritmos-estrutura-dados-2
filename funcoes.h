@@ -9,8 +9,6 @@ void criarArquivosDados();
 
 void criarArquivosIndices();
 
-void exibirMenu();
-
-void processarOpcaoMenu(int opcao);
+void gerenciarMenu();
 
 #endif
