@@ -2,7 +2,7 @@
 #define CONFIG_H
 
 // Configurações de arquivos:
-#define ARQUIVO_ENTRADA "dados/jewelry.csv"
+#define ARQUIVO_ENTRADA "dados/jewelry_pequeno.csv"
 #define ARQUIVO_JOIAS "dados/joias.bin"
 #define ARQUIVO_PEDIDOS "dados/pedidos.bin"
 

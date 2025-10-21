@@ -695,7 +695,7 @@ void buscarJoia() {
         }
 
         if (joia.id == idBusca) {
-            printf("\n\nID: %lld\n", joia.id);
+            printf("\nID: %lld\n", joia.id);
             if (joia.id_categoria != -1) {
                 printf("ID da Categoria: %lld\n", joia.id_categoria);
             } else {
@@ -775,7 +775,7 @@ void buscarPedido() {
         }
 
         if (pedido.id == idBusca) {
-            printf("\n\nID do Pedido: %lld\n", pedido.id);
+            printf("\nID do Pedido: %lld\n", pedido.id);
             printf("ID do Produto: %lld\n", pedido.id_produto);
             printf("Data e Hora: %s\n", pedido.date_time);
             printf("Quantidade SKU: %d\n", pedido.quantidade_sku);
@@ -889,6 +889,8 @@ void inserirJoia() {
     fseek(arquivoJoias, 0, SEEK_END);
     int posicaoNovaJoia = ftell(arquivoJoias) / sizeof(JOIA);
 
+    JOIA joiaAtual;
+
     int bloco = buscarIndicePorId(arquivoIndicesJoias, joiaNova.id);
     if (bloco == -1) {
         // A nova joia sera a ultima do arquivo.
@@ -898,7 +900,6 @@ void inserirJoia() {
 
         fseek(arquivoJoias, ultimoIndice.posicao_inicial * sizeof(JOIA), SEEK_SET);
 
-        JOIA joiaAtual;
         while (fread(&joiaAtual, sizeof(JOIA), 1, arquivoJoias) == 1) {
             if (joiaAtual.id == ultimoIndice.id_final) {
                 fseek(arquivoJoias, -sizeof(JOIA), SEEK_CUR);
@@ -914,6 +915,8 @@ void inserirJoia() {
 
                 fclose(arquivoIndicesJoias);
                 fclose(arquivoJoias);
+
+                totalInsercoes++;
                 return;
             }
 
@@ -923,6 +926,45 @@ void inserirJoia() {
         }
     } else {
         // A nova joia pertence a um bloco.
+        INDICE indice;
+        fseek(arquivoIndicesJoias, bloco * sizeof(INDICE), SEEK_SET);
+        fread(&indice, sizeof(INDICE), 1, arquivoIndicesJoias);
+
+        fseek(arquivoJoias, indice.posicao_inicial * sizeof(JOIA), SEEK_SET);
+
+        JOIA joiaAnterior;
+        joiaAnterior.id = -1;
+        while (fread(&joiaAtual, sizeof(JOIA), 1, arquivoJoias) == 1) {
+            if (joiaAtual.id == joiaNova.id) {
+                // Nao sera inserida uma joia com o mesmo ID.
+                fclose(arquivoIndicesJoias);
+                fclose(arquivoJoias);
+                return;
+            } else if (joiaAtual.id > joiaNova.id) {
+                if (bloco == 0 && joiaAnterior.id == -1) {
+                    // A nova joia sera a primeira do arquivo.
+                    joiaNova.elo = indice.posicao_inicial;
+                    fseek(arquivoJoias, 0, SEEK_END);
+                    fwrite(&joiaNova, sizeof(JOIA), 1, arquivoJoias);
+
+                    indice.posicao_inicial = posicaoNovaJoia;
+                    fseek(arquivoIndicesJoias, 0, SEEK_SET);
+                    fwrite(&indice, sizeof(INDICE), 1, arquivoIndicesJoias);
+
+                    fclose(arquivoIndicesJoias);
+                    fclose(arquivoJoias);
+
+                    totalInsercoes++;
+                    return;
+                }
+            }
+
+            if (joiaAtual.elo != -1) {
+                fseek(arquivoJoias, joiaAtual.elo * sizeof(JOIA), SEEK_SET);
+            }
+
+            joiaAnterior = joiaAtual;
+        }
     }
 }
 
@@ -943,6 +985,8 @@ void inserirPedido() {
         exit(1);
     }
 
+    PEDIDO pedidoAtual;
+
     fseek(arquivoPedidos, 0, SEEK_END);
     int posicaoNovoPedido = ftell(arquivoPedidos) / sizeof(PEDIDO);
 
@@ -955,7 +999,6 @@ void inserirPedido() {
 
         fseek(arquivoPedidos, ultimoIndice.posicao_inicial * sizeof(PEDIDO), SEEK_SET);
 
-        PEDIDO pedidoAtual;
         while (fread(&pedidoAtual, sizeof(PEDIDO), 1, arquivoPedidos) == 1) {
             if (pedidoAtual.id == ultimoIndice.id_final) {
                 fseek(arquivoPedidos, -sizeof(PEDIDO), SEEK_CUR);
@@ -980,6 +1023,45 @@ void inserirPedido() {
         }
     } else {
         // O novo pedido pertence a um bloco.
+        INDICE indice;
+        fseek(arquivoIndicesPedidos, bloco * sizeof(INDICE), SEEK_SET);
+        fread(&indice, sizeof(INDICE), 1, arquivoIndicesPedidos);
+
+        fseek(arquivoPedidos, indice.posicao_inicial * sizeof(PEDIDO), SEEK_SET);
+
+        PEDIDO pedidoAnterior;
+        pedidoAnterior.id = -1;
+        while (fread(&pedidoAtual, sizeof(PEDIDO), 1, arquivoPedidos) == 1) {
+            if (pedidoAtual.id == pedidoNovo.id) {
+                // Nao sera inserido um novo pedido com o mesmo ID.
+                fclose(arquivoIndicesPedidos);
+                fclose(arquivoPedidos);
+                return;
+            } else if (pedidoAtual.id > pedidoNovo.id) {
+                if (bloco == 0 && pedidoAnterior.id == -1) {
+                    // O novo pedido sera o primeiro do arquivo.
+                    pedidoNovo.elo = indice.posicao_inicial;
+                    fseek(arquivoPedidos, 0, SEEK_END);
+                    fwrite(&pedidoNovo, sizeof(PEDIDO), 1, arquivoPedidos);
+
+                    indice.posicao_inicial = posicaoNovoPedido;
+                    fseek(arquivoIndicesPedidos, 0, SEEK_SET);
+                    fwrite(&indice, sizeof(INDICE), 1, arquivoIndicesPedidos);
+
+                    fclose(arquivoIndicesPedidos);
+                    fclose(arquivoPedidos);
+
+                    totalInsercoes++;
+                    return;
+                }
+            }
+
+            if (pedidoAtual.elo != -1) {
+                fseek(arquivoPedidos, pedidoAtual.elo * sizeof(PEDIDO), SEEK_SET);
+            }
+
+            pedidoAnterior = pedidoAtual;
+        }
     }
 }
 
