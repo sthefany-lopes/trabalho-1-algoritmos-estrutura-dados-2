@@ -2,7 +2,7 @@
 #define CONFIG_H
 
 // Configurações de arquivos:
-#define ARQUIVO_ENTRADA "dados/jewelry_pequeno.csv"
+#define ARQUIVO_ENTRADA "dados/jewelry.csv"
 #define ARQUIVO_JOIAS "dados/joias.bin"
 #define ARQUIVO_PEDIDOS "dados/pedidos.bin"
 
@@ -14,7 +14,7 @@
 #define ARQUIVO_AUXILIAR_JOIAS "dados/joias_auxiliar.bin"
 #define ARQUIVO_AUXILIAR_PEDIDOS "dados/pedidos_auxiliar.bin"
 
-#define TAMANHO_BLOCO_INDICE 4
+#define TAMANHO_BLOCO_INDICE 1000
 
 // Configurações para alocações de memória:
 #define CAPACIDADE_INICIAL_VETOR 10000

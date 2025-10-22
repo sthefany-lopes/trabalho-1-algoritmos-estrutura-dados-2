@@ -934,6 +934,7 @@ void inserirJoia() {
 
         JOIA joiaAnterior;
         joiaAnterior.id = -1;
+        int posicaoJoiaAnterior = -1;
         while (fread(&joiaAtual, sizeof(JOIA), 1, arquivoJoias) == 1) {
             if (joiaAtual.id == joiaNova.id) {
                 // Nao sera inserida uma joia com o mesmo ID.
@@ -979,9 +980,25 @@ void inserirJoia() {
                     totalInsercoes++;
                     return;
                 } else {
+                    // Nao sera a primeira joia do bloco e nem a ultima do bloco.
+                    joiaNova.elo = (joiaAnterior.elo != -1) ? joiaAnterior.elo : (ftell(arquivoJoias) / sizeof(JOIA)) - 1;
 
+                    fseek(arquivoJoias, 0, SEEK_END);
+                    fwrite(&joiaNova, sizeof(JOIA), 1, arquivoJoias);
+
+                    joiaAnterior.elo = posicaoNovaJoia;
+                    fseek(arquivoJoias, posicaoJoiaAnterior * sizeof(JOIA), SEEK_SET);
+                    fwrite(&joiaAnterior, sizeof(JOIA), 1, arquivoJoias);
+
+                    fclose(arquivoIndicesJoias);
+                    fclose(arquivoJoias);
+
+                    totalInsercoes++;
+                    return;
                 }
             }
+
+            posicaoJoiaAnterior = (ftell(arquivoJoias) / sizeof(JOIA)) - 1;
 
             if (joiaAtual.elo != -1) {
                 fseek(arquivoJoias, joiaAtual.elo * sizeof(JOIA), SEEK_SET);
@@ -990,6 +1007,9 @@ void inserirJoia() {
             joiaAnterior = joiaAtual;
         }
     }
+
+    fclose(arquivoIndicesJoias);
+    fclose(arquivoJoias);
 }
 
 void inserirPedido() {
@@ -1055,6 +1075,7 @@ void inserirPedido() {
 
         PEDIDO pedidoAnterior;
         pedidoAnterior.id = -1;
+        int posicaoPedidoAnterior = -1;
         while (fread(&pedidoAtual, sizeof(PEDIDO), 1, arquivoPedidos) == 1) {
             if (pedidoAtual.id == pedidoNovo.id) {
                 // Nao sera inserido um novo pedido com o mesmo ID.
@@ -1099,8 +1120,25 @@ void inserirPedido() {
 
                     totalInsercoes++;
                     return;
+                } else {
+                    pedidoNovo.elo = (pedidoAnterior.elo != -1) ? pedidoAnterior.elo : (ftell(arquivoPedidos) / sizeof(PEDIDO)) - 1;
+
+                    fseek(arquivoPedidos, 0, SEEK_END);
+                    fwrite(&pedidoNovo, sizeof(PEDIDO), 1, arquivoPedidos);
+
+                    pedidoAnterior.elo = posicaoNovoPedido;
+                    fseek(arquivoPedidos, posicaoPedidoAnterior * sizeof(PEDIDO), SEEK_SET);
+                    fwrite(&pedidoAnterior, sizeof(PEDIDO), 1, arquivoPedidos);
+
+                    fclose(arquivoIndicesPedidos);
+                    fclose(arquivoPedidos);
+
+                    totalInsercoes++;
+                    return;
                 }
             }
+
+            posicaoPedidoAnterior = (ftell(arquivoPedidos) / sizeof(PEDIDO)) - 1;
 
             if (pedidoAtual.elo != -1) {
                 fseek(arquivoPedidos, pedidoAtual.elo * sizeof(PEDIDO), SEEK_SET);
@@ -1109,6 +1147,9 @@ void inserirPedido() {
             pedidoAnterior = pedidoAtual;
         }
     }
+
+    fclose(arquivoIndicesPedidos);
+    fclose(arquivoPedidos);
 }
 
 void excluirJoia() {
