@@ -11,4 +11,6 @@ int compararPedidos(const void *a, const void *b);
 
 int compararJoias(const void *a, const void *b);
 
+int aguardarAcaoPaginacao();
+
 #endif

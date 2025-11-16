@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "funcoes.h"
+#include "funcoes_criptografia.h"
 #include "funcoes_utilitarias.h"
 #include "structs.h"
 #include "config.h"
@@ -131,14 +132,12 @@ int verificarExistenciaArquivosIndices() {
 
 void gravarVetoresDadosEmArquivos(PEDIDO *vetorPedidos, long quantidadePedidos, JOIA *vetorJoias, long quantidadeJoias) {
     FILE *arquivoPedidos = fopen(ARQUIVO_PEDIDOS, "wb");
-
     if (arquivoPedidos == NULL) {
         printf("\nErro ao abrir o arquivo binario de pedidos.\n");
         exit(1);
     }
 
     FILE *arquivoJoias = fopen(ARQUIVO_JOIAS, "wb");
-
     if (arquivoJoias == NULL) {
         printf("\nErro ao abrir o arquivo binario de joias.\n");
         exit(1);
@@ -273,17 +272,8 @@ void criarArquivosDados() {
     gravarVetoresDadosEmArquivos(vetorPedidos, quantidadePedidos, vetorJoias, quantidadeJoias);
 }
 
-int aguardarAcaoPaginacao() {
-    int opcao;
-
-    printf("\nPressione '1' para continuar ou '0' para sair: ");
-    scanf("%d", &opcao);
-
-    return opcao;
-}
-
-void exibirJoiasOrdenacaoFisica() {
-    FILE *arquivoJoias = fopen(ARQUIVO_JOIAS, "rb");
+void exibirJoiasOrdenacaoFisica(const char *nomeArquivoJoias) {
+    FILE *arquivoJoias = fopen(nomeArquivoJoias, "rb");
     if (arquivoJoias == NULL) {
         printf("\nErro ao abrir o arquivo binario de joias.\n");
         exit(1);
@@ -338,8 +328,8 @@ void exibirJoiasOrdenacaoFisica() {
     fclose(arquivoJoias);
 }
 
-void exibirPedidosOrdenacaoFisica() {
-    FILE *arquivoPedidos = fopen(ARQUIVO_PEDIDOS, "rb");
+void exibirPedidosOrdenacaoFisica(const char *nomeArquivoPedidos) {
+    FILE *arquivoPedidos = fopen(nomeArquivoPedidos, "rb");
     if (arquivoPedidos == NULL) {
         printf("\nErro ao abrir o arquivo binario de pedidos.\n");
         exit(1);
@@ -1418,6 +1408,35 @@ void reorganizarArquivos() {
     printf("Todos os arquivos foram reorganizados com sucesso.\n\n");
 }
 
+void gerarArquivosCriptografadosDescriptografados() {
+    gerarArquivosDadosCriptografados();
+    gerarArquivosDadosDescriptografados();
+
+    printf("\nTodos os arquivos foram criados com sucesso.\n");
+}
+
+void exibirJoiasArquivoDescriptografado() {
+    FILE *arquivoJoiasDescriptografado = fopen(ARQUIVO_JOIAS_DESCRIPT, "rb");
+    if (arquivoJoiasDescriptografado == NULL) {
+        printf("\nO arquivo descriptografado de joias nao existe.\n");
+        return;
+    }
+
+    fclose(arquivoJoiasDescriptografado);
+    exibirJoiasOrdenacaoFisica(ARQUIVO_JOIAS_DESCRIPT);
+}
+
+void exibirPedidosArquivoDescriptografado() {
+    FILE *arquivoPedidosDescriptografado = fopen(ARQUIVO_PEDIDOS_DESCRIPT, "rb");
+    if (arquivoPedidosDescriptografado == NULL) {
+        printf("\nO arquivo descriptografado de pedidos nao existe.\n");
+        return;
+    }
+
+    fclose(arquivoPedidosDescriptografado);
+    exibirPedidosOrdenacaoFisica(ARQUIVO_PEDIDOS_DESCRIPT);
+}
+
 void exibirMenu() {
     printf("MENU\n");
     printf("1 - Exibir joias por ordenacao fisica (desordenado)\n");
@@ -1432,6 +1451,9 @@ void exibirMenu() {
     printf("10 - Inserir pedido\n");
     printf("11 - Excluir joia\n");
     printf("12 - Excluir pedido\n");
+    printf("13 - Gerar arquivos criptografados e descriptografados de joias e pedidos\n");
+    printf("14 - Visualizar arquivo de joias descriptografado\n");
+    printf("15 - Visualizar arquivo de pedidos descriptografado\n");
     printf("0 - Sair\n");
     printf("\nSelecione: ");
 }
@@ -1441,10 +1463,10 @@ void processarOpcaoMenu(int opcao) {
         case 0:
             break;
         case 1:
-            exibirJoiasOrdenacaoFisica();
+            exibirJoiasOrdenacaoFisica(ARQUIVO_JOIAS);
             break;
         case 2:
-            exibirPedidosOrdenacaoFisica();
+            exibirPedidosOrdenacaoFisica(ARQUIVO_PEDIDOS);
             break;
         case 3:
             exibirJoiasOrdenacaoLogica();
@@ -1475,6 +1497,15 @@ void processarOpcaoMenu(int opcao) {
             break;
         case 12:
             excluirPedido();
+            break;
+        case 13:
+            gerarArquivosCriptografadosDescriptografados();
+            break;
+        case 14:
+            exibirJoiasArquivoDescriptografado();
+            break;
+        case 15:
+            exibirPedidosArquivoDescriptografado();
             break;
         default:
             printf("\nOpcao invalida.\n");

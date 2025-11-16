@@ -55,3 +55,11 @@ int compararJoias(const void *a, const void *b) {
     return 0;
 }
 
+int aguardarAcaoPaginacao() {
+    int opcao;
+
+    printf("\nPressione '1' para continuar ou '0' para sair: ");
+    scanf("%d", &opcao);
+
+    return opcao;
+}
