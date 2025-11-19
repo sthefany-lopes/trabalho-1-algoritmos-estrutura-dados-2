@@ -30,7 +30,6 @@
 
 // Configurações de paginação:
 #define TAM_PAGINA 50
-#define TAM_PAGINA_HEX 50
 
 // Configurações de reorganização:
 #define MAX_MODIFICACOES 100

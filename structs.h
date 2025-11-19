@@ -1,6 +1,7 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
+// Estruturas gerais das joias e pedidos.
 typedef struct {
     long long id;
     long long id_categoria;
@@ -22,6 +23,7 @@ typedef struct {
     int fl_exclusao;
 } PEDIDO;
 
+// Estrutura do índice utilizado na organização indexado-sequencial.
 typedef struct {
     long long id_final;
     int posicao_inicial;

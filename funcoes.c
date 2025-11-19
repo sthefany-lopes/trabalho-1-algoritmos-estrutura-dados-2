@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <windows.h>
 
 #include "funcoes.h"
 #include "funcoes_criptografia.h"
@@ -1438,7 +1439,12 @@ void exibirPedidosArquivoDescriptografado() {
 }
 
 void exibirMenu() {
+    HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    SetConsoleTextAttribute(console, FOREGROUND_BLUE | FOREGROUND_INTENSITY);
     printf("MENU\n");
+    SetConsoleTextAttribute(console, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+
     printf("1 - Exibir joias por ordenacao fisica (desordenado)\n");
     printf("2 - Exibir pedidos por ordenacao fisica (desordenado)\n");
     printf("3 - Exibir joias por ordenacao logica (ordenado)\n");
