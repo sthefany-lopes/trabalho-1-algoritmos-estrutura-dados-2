@@ -2,8 +2,10 @@
 #include <stdlib.h>
 
 #include "funcoes.h"
+#include "funcoes_hash.h"
 
 int main() {
+    // Montagem dos arquivos de dados e de organização indexado-sequencial.
     int arquivosDadosExistem = verificarExistenciaArquivosDados();
     if (!arquivosDadosExistem) {
         criarArquivosDados();
@@ -14,6 +16,11 @@ int main() {
             criarArquivosIndices();
         }
     }
+
+    // Montagem das tabelas hash em memória.
+    montarTabelaHashIndicesJoias();
+    montarTabelaHashIndicesPedidos();
+    printf("\n");
 
     gerenciarMenu();
 

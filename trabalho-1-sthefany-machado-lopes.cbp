@@ -40,6 +40,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="funcoes_criptografia.h" />
+		<Unit filename="funcoes_hash.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="funcoes_hash.h" />
 		<Unit filename="funcoes_utilitarias.c">
 			<Option compilerVar="CC" />
 		</Unit>
