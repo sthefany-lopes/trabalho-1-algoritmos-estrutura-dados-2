@@ -36,6 +36,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="funcoes.h" />
+		<Unit filename="funcoes_arvore_b.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="funcoes_arvore_b.h" />
 		<Unit filename="funcoes_criptografia.c">
 			<Option compilerVar="CC" />
 		</Unit>

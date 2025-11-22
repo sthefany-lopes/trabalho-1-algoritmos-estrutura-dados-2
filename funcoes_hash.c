@@ -93,7 +93,7 @@ void montarTabelaHashIndicesJoias() {
 
     clock_t fim = clock();
     double tempoGasto = (double)(fim - inicio) / CLOCKS_PER_SEC;
-    printf("Tempo para montar tabela hash de indices de joias: %.10f segundo(s).\n", tempoGasto);
+    printf("Tempo para montar a tabela hash de indices de joias: %.10f segundo(s).\n", tempoGasto);
 }
 
 void montarTabelaHashIndicesPedidos() {
@@ -119,7 +119,7 @@ void montarTabelaHashIndicesPedidos() {
 
     clock_t fim = clock();
     double tempoGasto = (double)(fim - inicio) / CLOCKS_PER_SEC;
-    printf("Tempo para montar tabela hash de indices de pedidos: %.10f segundo(s).\n", tempoGasto);
+    printf("Tempo para montar a tabela hash de indices de pedidos: %.10f segundo(s).\n", tempoGasto);
 }
 
 // Funções que percorrem a tabela hash e imprimem todos os índices.

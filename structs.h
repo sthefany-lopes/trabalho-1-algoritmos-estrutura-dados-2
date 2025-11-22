@@ -53,4 +53,13 @@ typedef struct {
     HASH_INDICE_JOIA *bucket[TAM_HASH];
 } TABELA_HASH_INDICE_JOIA;
 
+// Estrutura dos nós das árvores B para armazenamento dos índices.
+typedef struct no_arvore_b {
+    int n; // Número de chaves usadas.
+    long long ids[MAX_CHAVES]; // Chaves.
+    int posicoes[MAX_CHAVES]; // Posições no arquivo.
+    struct no_arvore_b* filhos[MAX_FILHOS]; // Ponteiros para filhos.
+    int ehFolha;
+} NO_ARVORE_B;
+
 #endif

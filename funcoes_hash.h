@@ -1,10 +1,6 @@
 #ifndef FUNCOES_HASH_H
 #define FUNCOES_HASH_H
 
-unsigned int hashLongLong(long long x);
-
-unsigned int hashStr(const char *str);
-
 void inicializarTabelaHashJoia();
 
 void inicializarTabelaHashPedido();

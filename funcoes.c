@@ -7,6 +7,7 @@
 #include "funcoes.h"
 #include "funcoes_criptografia.h"
 #include "funcoes_hash.h"
+#include "funcoes_arvore_b.h"
 #include "funcoes_utilitarias.h"
 #include "structs.h"
 #include "config.h"
@@ -16,6 +17,8 @@ int totalInsercoes = 0;
 int totalExclusoes = 0;
 
 void criarArquivosIndices() {
+    clock_t inicio = clock();
+
     FILE *arquivoJoias = fopen(ARQUIVO_JOIAS, "rb");
     if (arquivoJoias == NULL) {
         printf("\nErro ao abrir o arquivo binario de joias.\n");
@@ -100,6 +103,10 @@ void criarArquivosIndices() {
     fclose(arquivoPedidos);
     fclose(arquivoIndicesJoias);
     fclose(arquivoIndicesPedidos);
+
+    clock_t fim = clock();
+    double tempoGasto = (double)(fim - inicio) / CLOCKS_PER_SEC;
+    printf("Tempo para montar os arquivos de indices da organizacao indexada-sequencial: %.10f segundo(s).\n\n", tempoGasto);
 }
 
 int verificarExistenciaArquivosDados() {
@@ -173,7 +180,7 @@ void criarArquivosDados() {
         exit(1);
     }
 
-    // Vetores dinamicos.
+    // Vetores dinâmicos.
     PEDIDO *vetorPedidos = malloc(CAPACIDADE_INICIAL_VETOR * sizeof(PEDIDO));
     JOIA *vetorJoias = malloc(CAPACIDADE_INICIAL_VETOR * sizeof(JOIA));
 
@@ -251,7 +258,7 @@ void criarArquivosDados() {
         joia.elo = -1;
         joia.fl_exclusao = 0;
 
-        // Realocacao (se necessario).
+        // Realocação (se necessário).
         if (quantidadePedidos >= capacidade) {
             capacidade *= 2;
             vetorPedidos = realloc(vetorPedidos, capacidade * sizeof(PEDIDO));
@@ -269,7 +276,7 @@ void criarArquivosDados() {
 
     fclose(arquivoEntrada);
 
-    // Ordenacao dos vetores dinamicos.
+    // Ordenação dos vetores dinâmicos.
     qsort(vetorPedidos, quantidadePedidos, sizeof(PEDIDO), compararPedidos);
     qsort(vetorJoias, quantidadeJoias, sizeof(JOIA), compararJoias);
 
@@ -678,7 +685,7 @@ void buscarJoia() {
 
         fim = clock();
         tempoGasto = (double)(fim - inicio) / CLOCKS_PER_SEC;
-        printf("Tempo gasto: %.10f segundo(s).\n", tempoGasto);
+        printf("\nTempo gasto: %.10f segundo(s).\n", tempoGasto);
 
         fclose(arquivoIndicesJoias);
         fclose(arquivoJoias);
@@ -725,7 +732,7 @@ void buscarJoia() {
 
             fim = clock();
             tempoGasto = (double)(fim - inicio) / CLOCKS_PER_SEC;
-            printf("Tempo gasto: %.10f segundo(s).\n", tempoGasto);
+            printf("\nTempo gasto: %.10f segundo(s).\n", tempoGasto);
 
             fclose(arquivoIndicesJoias);
             fclose(arquivoJoias);
@@ -741,7 +748,7 @@ void buscarJoia() {
 
     fim = clock();
     tempoGasto = (double)(fim - inicio) / CLOCKS_PER_SEC;
-    printf("Tempo gasto: %.10f segundo(s).\n", tempoGasto);
+    printf("\nTempo gasto: %.10f segundo(s).\n", tempoGasto);
 
     fclose(arquivoIndicesJoias);
     fclose(arquivoJoias);
@@ -760,7 +767,6 @@ void buscarPedido() {
         exit(1);
     }
 
-
     printf("\nBUSCA POR PEDIDO\n");
 
     long long idBusca;
@@ -777,7 +783,7 @@ void buscarPedido() {
 
         fim = clock();
         tempoGasto = (double)(fim - inicio) / CLOCKS_PER_SEC;
-        printf("Tempo gasto: %.10f segundo(s).\n", tempoGasto);
+        printf("\nTempo gasto: %.10f segundo(s).\n", tempoGasto);
 
         fclose(arquivoIndicesPedidos);
         fclose(arquivoPedidos);
@@ -824,7 +830,7 @@ void buscarPedido() {
 
             fim = clock();
             tempoGasto = (double)(fim - inicio) / CLOCKS_PER_SEC;
-            printf("Tempo gasto: %.10f segundo(s).\n", tempoGasto);
+            printf("\nTempo gasto: %.10f segundo(s).\n", tempoGasto);
 
             fclose(arquivoIndicesPedidos);
             fclose(arquivoPedidos);
@@ -840,7 +846,7 @@ void buscarPedido() {
 
     fim = clock();
     tempoGasto = (double)(fim - inicio) / CLOCKS_PER_SEC;
-    printf("Tempo gasto: %.10f segundo(s).\n", tempoGasto);
+    printf("\nTempo gasto: %.10f segundo(s).\n", tempoGasto);
 
     fclose(arquivoIndicesPedidos);
     fclose(arquivoPedidos);
@@ -924,7 +930,7 @@ void inserirJoia() {
 
     int bloco = buscarIndicePorId(arquivoIndicesJoias, joiaNova.id);
     if (bloco == -1) {
-        // A nova joia sera a ultima do arquivo.
+        // A nova joia será a última do arquivo.
         INDICE ultimoIndice;
         fseek(arquivoIndicesJoias, -sizeof(INDICE), SEEK_END);
         fread(&ultimoIndice, sizeof(INDICE), 1, arquivoIndicesJoias);
@@ -950,6 +956,7 @@ void inserirJoia() {
                 totalInsercoes++;
 
                 inserirIndiceJoiaTabelaHash(joiaNova.id_categoria, posicaoNovaJoia);
+                inserirIndiceJoiaArvoreB(joiaNova.id, posicaoNovaJoia);
                 return;
             }
 
@@ -970,15 +977,16 @@ void inserirJoia() {
         int posicaoJoiaAnterior = -1;
         while (fread(&joiaAtual, sizeof(JOIA), 1, arquivoJoias) == 1) {
             if (joiaAtual.id == joiaNova.id) {
-                // Nao sera inserida uma joia com o mesmo ID.
+                // Não será inserida uma joia com o mesmo ID.
                 fclose(arquivoIndicesJoias);
                 fclose(arquivoJoias);
                 return;
             } else if (joiaAtual.id > joiaNova.id) {
                 inserirIndiceJoiaTabelaHash(joiaNova.id_categoria, posicaoNovaJoia);
+                inserirIndiceJoiaArvoreB(joiaNova.id, posicaoNovaJoia);
 
                 if (joiaAnterior.id == -1) {
-                    // A nova joia sera a primeira do bloco.
+                    // A nova joia será a primeira do bloco.
                     joiaNova.elo = indice.posicao_inicial;
                     fseek(arquivoJoias, 0, SEEK_END);
                     fwrite(&joiaNova, sizeof(JOIA), 1, arquivoJoias);
@@ -1015,7 +1023,7 @@ void inserirJoia() {
                     totalInsercoes++;
                     return;
                 } else {
-                    // Nao sera a primeira joia do bloco e nem a ultima do bloco.
+                    // Nao será a primeira joia do bloco e nem a última do bloco.
                     joiaNova.elo = (joiaAnterior.elo != -1) ? joiaAnterior.elo : (ftell(arquivoJoias) / sizeof(JOIA)) - 1;
 
                     fseek(arquivoJoias, 0, SEEK_END);
@@ -1071,7 +1079,7 @@ void inserirPedido() {
 
     int bloco = buscarIndicePorId(arquivoIndicesPedidos, pedidoNovo.id);
     if (bloco == -1) {
-        // O novo pedido sera o ultimo do arquivo.
+        // O novo pedido será o ultimo do arquivo.
         INDICE ultimoIndice;
         fseek(arquivoIndicesPedidos, -sizeof(INDICE), SEEK_END);
         fread(&ultimoIndice, sizeof(INDICE), 1, arquivoIndicesPedidos);
@@ -1095,6 +1103,7 @@ void inserirPedido() {
                 fclose(arquivoPedidos);
 
                 inserirIndicePedidoTabelaHash(pedidoNovo.date_time, posicaoNovoPedido);
+                inserirIndicePedidoArvoreB(pedidoNovo.id, posicaoNovoPedido);
                 return;
             }
 
@@ -1115,15 +1124,16 @@ void inserirPedido() {
         int posicaoPedidoAnterior = -1;
         while (fread(&pedidoAtual, sizeof(PEDIDO), 1, arquivoPedidos) == 1) {
             if (pedidoAtual.id == pedidoNovo.id) {
-                // Nao sera inserido um novo pedido com o mesmo ID.
+                // Não será inserido um novo pedido com o mesmo ID.
                 fclose(arquivoIndicesPedidos);
                 fclose(arquivoPedidos);
                 return;
             } else if (pedidoAtual.id > pedidoNovo.id) {
                 inserirIndicePedidoTabelaHash(pedidoNovo.date_time, posicaoNovoPedido);
+                inserirIndicePedidoArvoreB(pedidoNovo.id, posicaoNovoPedido);
 
                 if (pedidoAnterior.id == -1) {
-                    // O novo pedido sera o primeiro do bloco.
+                    // O novo pedido será o primeiro do bloco.
                     pedidoNovo.elo = indice.posicao_inicial;
                     fseek(arquivoPedidos, 0, SEEK_END);
                     fwrite(&pedidoNovo, sizeof(PEDIDO), 1, arquivoPedidos);
@@ -1448,12 +1458,12 @@ void reorganizarArquivoDadosPedidos() {
 }
 
 void reorganizarArquivos() {
-    printf("\nINICIANDO A REORGANIZACAO DOS ARQUIVOS DE DADOS...\n");
+    printf("INICIANDO A REORGANIZACAO DOS ARQUIVOS DE DADOS...\n");
     reorganizarArquivoDadosJoias();
     reorganizarArquivoDadosPedidos();
-    printf("Todos os arquivos foram reorganizados com sucesso.\n");
+    printf("\nTodos os arquivos foram reorganizados com sucesso.\n");
 
-    printf("\nINICIANDO A REORGANIZACAO DOS ARQUIVOS DE INDICES DA ORGANIZAO INDEXADO-SEQUENCIAL...\n");
+    printf("\nINICIANDO A REORGANIZACAO DOS ARQUIVOS DE INDICES DA ORGANIZAO INDEXADA-SEQUENCIAL...\n");
     criarArquivosIndices();
     printf("Todos os arquivos de indices foram reorganizados com sucesso.\n");
 
@@ -1462,7 +1472,14 @@ void reorganizarArquivos() {
     destruirTabelaHashIndicesPedidos();
     montarTabelaHashIndicesJoias();
     montarTabelaHashIndicesPedidos();
-    printf("Todas as tabelas hash foram reorganizadas com sucesso.\n\n");
+    printf("\nTodas as tabelas hash foram reorganizadas com sucesso.\n");
+
+    printf("\nINICIANDO A REORGANIZACAO DAS ARVORES B...\n");
+    destruirArvoreBIndicesJoias();
+    destruirArvoreBIndicesPedidos();
+    montarArvoreBIndicesJoias();
+    montarArvoreBIndicesPedidos();
+    printf("\nTodas as arvores B foram reorganizadas com sucesso.\n\n");
 }
 
 void gerarArquivosCriptografadosDescriptografados() {
@@ -1536,6 +1553,46 @@ void buscarPedidosViaChaveHash() {
     exibirPedidosViaChaveHash(dateTimeBusca);
 }
 
+void buscarIndiceJoiaArvoreB() {
+    printf("\nBUSCA POR INDICE DE JOIA\n");
+
+    long long idBusca;
+    printf("Informe o ID: ");
+    scanf("%lld", &idBusca);
+
+    exibirIndiceJoiaArvoreB(idBusca);
+}
+
+void buscarIndicePedidoArvoreB() {
+    printf("\nBUSCA POR INDICE DE PEDIDO\n");
+
+    long long idBusca;
+    printf("Informe o ID: ");
+    scanf("%lld", &idBusca);
+
+    exibirIndicePedidoArvoreB(idBusca);
+}
+
+void buscarJoiaArvoreB() {
+    printf("\nBUSCA POR JOIA\n");
+
+    long long idBusca;
+    printf("Informe o ID: ");
+    scanf("%lld", &idBusca);
+
+    exibirJoiaArvoreB(idBusca);
+}
+
+void buscarPedidoArvoreB() {
+    printf("\nBUSCA POR PEDIDO\n");
+
+    long long idBusca;
+    printf("Informe o ID: ");
+    scanf("%lld", &idBusca);
+
+    exibirPedidoArvoreB(idBusca);
+}
+
 void exibirMenu() {
     HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
 
@@ -1571,6 +1628,14 @@ void exibirMenu() {
     printf("19 - Exibir indices dos pedidos via chave hash\n");
     printf("20 - Buscar joias via chave hash\n");
     printf("21 - Buscar pedidos via chave hash\n");
+
+    printf("\nORGANIZACAO DE ARVORE B:\n");
+    printf("22 - Exibir indices das joias\n");
+    printf("23 - Exibir indices dos pedidos\n");
+    printf("24 - Exibir indice de uma joia\n");
+    printf("25 - Exibir indice de um pedido\n");
+    printf("26 - Buscar joia\n");
+    printf("27 - Buscar pedido\n");
 
     printf("\nSelecione: ");
 }
@@ -1641,6 +1706,24 @@ void processarOpcaoMenu(int opcao) {
             break;
         case 21:
             buscarPedidosViaChaveHash();
+            break;
+        case 22:
+            exibirTodosIndicesJoiasArvoreB();
+            break;
+        case 23:
+            exibirTodosIndicesPedidosArvoreB();
+            break;
+        case 24:
+            buscarIndiceJoiaArvoreB();
+            break;
+        case 25:
+            buscarIndicePedidoArvoreB();
+            break;
+        case 26:
+            buscarJoiaArvoreB();
+            break;
+        case 27:
+            buscarPedidoArvoreB();
             break;
         default:
             printf("\nOpcao invalida.\n");
