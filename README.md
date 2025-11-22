@@ -6,6 +6,7 @@
 
 **Dados das Tabelas Hash:**
 - Tamanho: 2503 (número primo).
+- Resolução de colisões: As colisões foram tratadas por encadeamento separado (separate chaining). Nesse método, cada posição da tabela hash armazena uma lista encadeada que reúne todos os elementos cuja função hash produz o mesmo índice. Assim, quando ocorre uma colisão, o novo elemento é simplesmente inserido na lista correspondente àquela posição, sem necessidade de sondagem ou realocação interna na tabela.
 
 **Dados das Árvores B:**
 - Ordem: 100.
