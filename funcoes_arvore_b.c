@@ -11,7 +11,7 @@
 NO_ARVORE_B* arvoreBJoias = NULL;
 NO_ARVORE_B* arvoreBPedidos = NULL;
 
-// Função que cria um nó da árvore B.
+// Função que cria um nó.
 NO_ARVORE_B* criaNoArvoreB(int ehFolha) {
     NO_ARVORE_B* no = (NO_ARVORE_B*) malloc(sizeof(NO_ARVORE_B));
     no->ehFolha = ehFolha;
@@ -116,7 +116,7 @@ void inserirNaoCheioArvoreB(NO_ARVORE_B* no, long long id, int posicao) {
     }
 }
 
-// Função que inserção em uma árvore B.
+// Função de inserção em uma árvore B.
 void inserirArvoreB(NO_ARVORE_B** raiz, long long id, int posicao) {
     if (*raiz == NULL) {
         *raiz = criaNoArvoreB(1);
@@ -249,7 +249,7 @@ void exibirTodosIndicesPedidosArvoreB() {
     }
 }
 
-// Funções exibem os índices via ID recebido.
+// Funções que exibem os índices via ID recebido.
 void exibirIndiceJoiaArvoreB(long long id) {
     clock_t inicio = clock();
 
@@ -353,7 +353,7 @@ void exibirPedidoArvoreB(long long id) {
     printf("\nPEDIDO COM O ID %lld:\n", id);
 
     if (posicao == -1) {
-        printf("\nPedido nao encontrada.\n");
+        printf("\nPedido nao encontrado.\n");
     } else {
         PEDIDO pedido;
         fseek(arquivoPedidos, posicao * sizeof(PEDIDO), SEEK_SET);

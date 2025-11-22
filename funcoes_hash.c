@@ -43,7 +43,7 @@ void inicializarTabelaHashPedido() {
     }
 }
 
-// Funções para inserção de índice nas tabelas hash.
+// Funções para inserção de índices nas tabelas hash.
 void inserirIndiceJoiaTabelaHash(long long id_categoria, int posicao) {
     unsigned int h = hashLongLong(id_categoria);
 
@@ -122,7 +122,7 @@ void montarTabelaHashIndicesPedidos() {
     printf("Tempo para montar a tabela hash de indices de pedidos: %.10f segundo(s).\n", tempoGasto);
 }
 
-// Funções que percorrem a tabela hash e imprimem todos os índices.
+// Funções que percorrem as tabelas hash e imprimem todos os índices.
 void exibirTodosIndicesJoiasTabelaHash() {
     int i;
     int contador = 0;
@@ -182,7 +182,7 @@ void exibirTodosIndicesPedidosTabelaHash() {
     }
 }
 
-// Funções exibem os índices via chave hash recebida.
+// Funções que exibem os índices via chave hash recebida.
 void exibirIndicesJoiasViaChaveHash(long long id_categoria) {
     clock_t inicio = clock();
 
@@ -235,7 +235,7 @@ void exibirIndicesPedidosViaChaveHash(const char *date_time) {
     printf("Tempo gasto: %.10f segundo(s).\n", tempoGasto);
 }
 
-// Funções que encontram o índice via chave hash recebida e exibem os dados dos itens.
+// Funções que encontram os índices via chave hash recebida e exibem os dados dos itens.
 void exibirJoiasViaChaveHash(long long id_categoria) {
     clock_t inicio = clock();
 

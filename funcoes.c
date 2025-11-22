@@ -955,7 +955,9 @@ void inserirJoia() {
 
                 totalInsercoes++;
 
+                // Inserção de índice na tabela hash.
                 inserirIndiceJoiaTabelaHash(joiaNova.id_categoria, posicaoNovaJoia);
+                // Inserção de índice na árvore B.
                 inserirIndiceJoiaArvoreB(joiaNova.id, posicaoNovaJoia);
                 return;
             }
@@ -982,7 +984,9 @@ void inserirJoia() {
                 fclose(arquivoJoias);
                 return;
             } else if (joiaAtual.id > joiaNova.id) {
+                // Inserção de índice na tabela hash.
                 inserirIndiceJoiaTabelaHash(joiaNova.id_categoria, posicaoNovaJoia);
+                // Inserção de índice na árvore B.
                 inserirIndiceJoiaArvoreB(joiaNova.id, posicaoNovaJoia);
 
                 if (joiaAnterior.id == -1) {
@@ -1102,7 +1106,9 @@ void inserirPedido() {
                 fclose(arquivoIndicesPedidos);
                 fclose(arquivoPedidos);
 
+                // Inserção de índice na tabela hash.
                 inserirIndicePedidoTabelaHash(pedidoNovo.date_time, posicaoNovoPedido);
+                // Inserção de índice na árvore B.
                 inserirIndicePedidoArvoreB(pedidoNovo.id, posicaoNovoPedido);
                 return;
             }
@@ -1129,7 +1135,9 @@ void inserirPedido() {
                 fclose(arquivoPedidos);
                 return;
             } else if (pedidoAtual.id > pedidoNovo.id) {
+                // Inserção de índice na tabela hash.
                 inserirIndicePedidoTabelaHash(pedidoNovo.date_time, posicaoNovoPedido);
+                // Inserção de índice na árvore B.
                 inserirIndicePedidoArvoreB(pedidoNovo.id, posicaoNovoPedido);
 
                 if (pedidoAnterior.id == -1) {

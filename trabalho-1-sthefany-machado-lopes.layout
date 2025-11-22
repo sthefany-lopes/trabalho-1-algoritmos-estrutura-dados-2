@@ -2,54 +2,9 @@
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
 	<ActiveTarget name="Debug" />
-	<File name="funcoes_hash.h" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="5" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="46" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="funcoes_hash.c" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="3" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="7811" topLine="249" />
-		</Cursor>
-	</File>
-	<File name="funcoes_arvore_b.c" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="2" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="8952" topLine="318" />
-		</Cursor>
-	</File>
-	<File name="funcoes.h" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="5" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="211" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="funcoes_utilitarias.h" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="4" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="325" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="funcoes.c" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="3" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="46239" topLine="1573" />
-		</Cursor>
-	</File>
-	<File name="structs.h" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="5" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1606" topLine="43" />
-		</Cursor>
-	</File>
 	<File name="funcoes_criptografia.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="4" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="64" topLine="8" />
-		</Cursor>
-	</File>
-	<File name="config.h" open="1" top="1" tabpos="5" split="0" active="1" splitpos="0" zoom_1="3" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1170" topLine="10" />
-		</Cursor>
-	</File>
-	<File name="main.c" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="6" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="764" topLine="4" />
+			<Cursor1 position="64" topLine="5" />
 		</Cursor>
 	</File>
 	<File name="funcoes_criptografia.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="5" zoom_2="0">
@@ -57,14 +12,59 @@
 			<Cursor1 position="157" topLine="0" />
 		</Cursor>
 	</File>
+	<File name="funcoes.c" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="3" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="35707" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="funcoes_hash.h" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="5" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="46" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="config.h" open="1" top="1" tabpos="2" split="0" active="1" splitpos="0" zoom_1="3" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1212" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="funcoes_utilitarias.h" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="4" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="325" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="funcoes_arvore_b.c" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="2" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="10905" topLine="390" />
+		</Cursor>
+	</File>
 	<File name="funcoes_arvore_b.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="7" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="457" topLine="0" />
 		</Cursor>
 	</File>
+	<File name="funcoes.h" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="5" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="211" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="funcoes_hash.c" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="3" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="6932" topLine="369" />
+		</Cursor>
+	</File>
+	<File name="structs.h" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="5" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1606" topLine="33" />
+		</Cursor>
+	</File>
 	<File name="funcoes_utilitarias.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="3" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1047" topLine="20" />
+			<Cursor1 position="1047" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="main.c" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="6" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="764" topLine="0" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>
